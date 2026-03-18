@@ -173,7 +173,7 @@ body{color:#e8eaf0;font-family:'Barlow',sans-serif;min-height:100vh;background-c
 </div>
 
 <div class="wt-panel">
-  <div class="wt-panel-hd"><span class="wt-panel-lbl">⚙ Formula Weights</span></div>
+  <div class="wt-panel-hd"><span class="wt-panel-lbl">⚙ Formula Weights</span><span id="preset-label" style="font-family:'Barlow Condensed',sans-serif;font-size:.9rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:1px;margin-left:16px">Round of 64 Preset</span></div>
   <div class="wt-panel-body">
   <div class="wt-grid">
     <div class="wi"><label>Defensive Efficiency <em class="bkp"><a href="https://kenpom.com" target="_blank">KP</a></em></label><input type="number" id="w-adjd" value="28" min="0" max="100" step="1" oninput="updateWtTotal();recalcAll()"></div>
@@ -915,6 +915,39 @@ function pickTeam(id,side,name){
 }
 
 // ── BUILD ALL SECTIONS ────────────────────────────────────────────────────────
+const ROUND_PRESETS = {
+  'ff':  {adjd:27,adjo:18,efg:13,tord:8,to:5,wab:7,tempo:4,tpr:5,luck:2,net:5,bpi:0,q12:0,q1w:4,q1pct:2,q12w:0},
+  'r64': {adjd:27,adjo:18,efg:13,tord:8,to:5,wab:7,tempo:4,tpr:5,luck:2,net:5,bpi:0,q12:0,q1w:4,q1pct:2,q12w:0},
+  'r32': {adjd:27,adjo:18,efg:13,tord:8,to:5,wab:7,tempo:4,tpr:5,luck:2,net:5,bpi:0,q12:0,q1w:4,q1pct:2,q12w:0},
+  's16': {adjd:29,adjo:19,efg:12,tord:8,to:5,wab:5,tempo:5,tpr:5,luck:3,net:4,bpi:0,q12:0,q1w:3,q1pct:2,q12w:0},
+  'e8':  {adjd:29,adjo:19,efg:12,tord:8,to:5,wab:5,tempo:5,tpr:5,luck:3,net:4,bpi:0,q12:0,q1w:3,q1pct:2,q12w:0},
+  'ff4': {adjd:31,adjo:21,efg:10,tord:8,to:5,wab:4,tempo:6,tpr:7,luck:4,net:2,bpi:0,q12:0,q1w:1,q1pct:1,q12w:0},
+  'nc':  {adjd:31,adjo:21,efg:10,tord:8,to:5,wab:4,tempo:6,tpr:7,luck:4,net:2,bpi:0,q12:0,q1w:1,q1pct:1,q12w:0},
+};
+
+// Slider id map for presets
+const PRESET_ID_MAP = {
+  adjd:'w-adjd',adjo:'w-adjo',efg:'w-efg',tord:'w-tord',to:'w-to',
+  wab:'w-wab',tempo:'w-tempo',tpr:'w-3p',luck:'w-luck',net:'w-net',
+  bpi:'w-bpi',q12:'w-q12',q1w:'w-q1w',q1pct:'w-q1pct',q12w:'w-q12w'
+};
+
+function applyPreset(roundId){
+  const p=ROUND_PRESETS[roundId];
+  if(!p)return;
+  Object.keys(p).forEach(k=>{
+    const el=document.getElementById(PRESET_ID_MAP[k]);
+    if(el)el.value=p[k];
+  });
+  updateWtTotal();
+  recalcAll();
+  const labels={ff:'First Four Preset',r64:'Round of 64 Preset',r32:'Round of 32 Preset',
+    s16:'Sweet 16 Preset',e8:'Elite Eight Preset',ff4:'Final Four Preset',nc:'Championship Preset'};
+  const lbl=document.getElementById('preset-label');
+  if(lbl)lbl.textContent=labels[roundId]||'';
+}
+
+let _currentRound='r64';
 function buildAll(){
   // FIRST FOUR
   const ffSec=document.getElementById('sec-ff');
@@ -1006,6 +1039,8 @@ function showTab(id,el){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(`sec-${id}`).classList.add('active');
   el.classList.add('active');
+  _currentRound=id;
+  applyPreset(id);
 }
 
 function updateWtTotal(){
@@ -1098,6 +1133,7 @@ function getCutoffLine(){
 buildAll();
 updateWtTotal();
 updatePoolBadge();
+applyPreset('r64');
 document.getElementById('cutoff-line').innerHTML=getCutoffLine();
 
 
