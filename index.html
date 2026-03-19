@@ -14,6 +14,23 @@ body{color:#e8eaf0;font-family:'Barlow',sans-serif;min-height:100vh;background-c
 .source span{color:#000000}
 
 /* TABS */
+.regional-panel{max-width:1400px;margin:0 auto 16px;padding:0 12px}
+.reg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.reg-card{background:rgba(8,12,30,0.85);border:1px solid rgba(32,96,224,.25);border-radius:10px;overflow:hidden;backdrop-filter:blur(4px);padding-bottom:8px}
+.reg-hd{padding:7px 14px;background:rgba(5,8,24,0.95);border-bottom:1px solid rgba(32,96,224,.2);
+  font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;text-transform:uppercase;
+  letter-spacing:2px;color:#2060e0;-webkit-text-stroke:.5px rgba(255,255,255,0.4);paint-order:stroke fill}
+.reg-row{display:flex;align-items:center;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.05);gap:10px}
+.reg-row:last-child{border-bottom:none}
+.reg-rank{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;color:rgba(255,255,255,.3);width:16px;flex-shrink:0}
+.reg-seed{font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:700;
+  background:rgba(255,255,255,.09);color:#ffffff;border-radius:3px;padding:1px 5px;flex-shrink:0}
+.reg-name{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;
+  color:#ffffff;text-transform:uppercase;letter-spacing:.3px;flex:1}
+.reg-pct{font-family:'Barlow Condensed',sans-serif;font-size:1.2rem;font-weight:800;
+  text-align:right;flex-shrink:0}
+.reg-bar-wrap{height:3px;background:rgba(255,255,255,.07);border-radius:2px;margin:0 14px 6px;margin-top:-3px}
+.reg-bar-fill{height:100%;border-radius:2px;transition:width .4s ease}
 .tabs{display:flex;justify-content:center;flex-wrap:nowrap;gap:8px;padding:0 12px 16px;max-width:none;margin:0 auto;overflow-x:auto}
 .tab{font-family:'Barlow Condensed',sans-serif;font-size:1.33rem;font-weight:700;text-transform:uppercase;
   letter-spacing:1.5px;padding:10px 22px;border-radius:8px;border:1px solid rgba(255,255,255,.08);
@@ -159,6 +176,24 @@ body{color:#e8eaf0;font-family:'Barlow',sans-serif;min-height:100vh;background-c
 .bd-sb{font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#9333ea;text-align:right;font-size:1.056rem}
 .bd-tot{border-top:1px solid rgba(255,255,255,.08);margin-top:3px;padding-top:4px}
 .bd-tot .bd-sa,.bd-tot .bd-sb{font-size:.95rem}
+
+/* REGIONAL PROBABILITY PANEL */
+.regional-panel-wrap{max-width:1400px;margin:0 auto 18px;padding:0 12px}
+#regional-panel{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:900px){#regional-panel{grid-template-columns:repeat(2,1fr)}}
+.rp-card{background:rgba(8,12,30,0.82);border:1px solid rgba(255,255,255,.1);border-radius:11px;overflow:hidden;backdrop-filter:blur(4px)}
+.rp-hd{padding:8px 14px;background:rgba(6,9,26,0.7);border-bottom:2px solid;display:flex;justify-content:space-between;align-items:center}
+.rp-reg{font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:800;text-transform:uppercase;letter-spacing:2px}
+.rp-sub{font-family:'Barlow Condensed',sans-serif;font-size:.75rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px}
+.rp-row{display:grid;grid-template-columns:1.4rem 1fr auto auto;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid rgba(255,255,255,.05)}
+.rp-row:last-child{border-bottom:none}
+.rp-rank{font-size:.85rem}
+.rp-name{font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:700;color:#ffffff;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rp-bar-wrap{width:80px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.rp-bar{height:100%;border-radius:3px;transition:width .4s ease}
+.rp-pct{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;color:#ffffff;min-width:2.5rem;text-align:right}
+.rp-panel-title{font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;text-transform:uppercase;letter-spacing:3px;color:#2060e0;text-align:center;margin-bottom:10px;-webkit-text-stroke:1px rgba(255,255,255,0.4);paint-order:stroke fill}
+
 </style>
 </head>
 <body>
@@ -211,6 +246,11 @@ body{color:#e8eaf0;font-family:'Barlow',sans-serif;min-height:100vh;background-c
 </div>
   </div>
 
+<div class="regional-panel-wrap">
+  <div class="rp-panel-title">Regional Final Four Probabilities</div>
+  <div id="regional-panel"></div>
+</div>
+<div class="regional-panel"><div class="reg-grid" id="reg-grid"></div></div>
 <div class="tabs">
   <div class="tab active" onclick="showTab('ff',this)">First Four</div>
   <div class="tab" onclick="showTab('r64',this)">Round of 64</div>
@@ -780,7 +820,7 @@ function updateCard(id){
   bd.innerHTML=html;
 }
 
-function recalcAll(){document.querySelectorAll('.card').forEach(el=>updateCard(el.dataset.id));}
+function recalcAll(){buildRegionalPanel();document.querySelectorAll('.card').forEach(el=>updateCard(el.dataset.id));}
 
 function toggleBd(id){
   const p=document.getElementById(`${id}-bd`);p.classList.toggle('open');
@@ -948,6 +988,361 @@ function applyPreset(roundId){
 }
 
 let _currentRound='r64';
+
+// ── REGIONAL PROBABILITY SIMULATION ─────────────────────────────────────────
+
+function winProb(nameA, nameB){
+  // Sigmoid win probability based on composite score differential
+  const w=W();
+  const da=TD[nameA]||{}, db=TD[nameB]||{};
+  const buildVals=(d)=>{
+    const v={};
+    MKEYS.forEach(k=>{ v[k]=d[k]!==undefined?d[k]:null; });
+    return v;
+  };
+  const va=buildVals(da), vb=buildVals(db);
+  const sa=scoreTeam(va,w).total, sb=scoreTeam(vb,w).total;
+  const diff=sa-sb;
+  return 1/(1+Math.exp(-0.14*diff));
+}
+
+function regionTeams(reg){
+  // Returns all team names in a region from R64
+  const teams=new Set();
+  R64.forEach(g=>{
+    if(g[2]===reg){
+      const addTeam=(t)=>{ if(typeof t==='string') teams.add(t); };
+      addTeam(g[0]);
+      if(Array.isArray(g[1])) g[1].forEach(addTeam);
+      else addTeam(g[1]);
+    }
+  });
+  // Add FF winners that play into this region
+  FF.forEach(ff=>{
+    R64.forEach(g=>{
+      if(g[2]===reg && Array.isArray(g[1])){
+        g[1].forEach(t=>teams.add(t));
+      }
+    });
+  });
+  return [...teams];
+}
+
+function simRegion(reg){
+  // Get the 8 R64 games in this region, compute P(each team reaches Final Four)
+  const regGames = R64.filter(g=>g[2]===reg);
+  // regGames is 8 games = 16 teams, bracket pods:
+  // pod1: games 0,1 (1v16, 8v9) -> R32 game 1
+  // pod2: games 2,3 (5v12, 4v13) -> R32 game 2  
+  // pod3: games 4,5 (6v11, 3v14) -> R32 game 3
+  // pod4: games 6,7 (7v10, 2v15) -> R32 game 4
+  // Winners of pods 1&2 meet in S16, winners of pods 3&4 meet in S16
+  // S16 winners meet in E8 = regional final
+
+  // For each team, compute P(wins region) = product of win probs along their path
+  // Use expected-value approach: for each possible opponent, weight by P(opponent reaches that round)
+
+  const probs = {}; // team -> P(wins region)
+
+  // Get team names from each game (handle FF slots)
+  function gameTeams(g){
+    const a = typeof g[0]==='string' ? [g[0]] : g[0];
+    const b = Array.isArray(g[1]) ? g[1] : [g[1]];
+    return [a, b];
+  }
+
+  // P(team wins a game given set of possible opponents with weights)
+  function pWin(team, opponents){
+    // opponents: [{name, prob}]
+    return opponents.reduce((sum, opp)=>{
+      if(opp.name===team) return sum;
+      return sum + opp.prob * winProb(team, opp.name);
+    }, 0);
+  }
+
+  // For each team, enumerate possible opponents at each round
+  // and compute P(win region) via forward probability propagation
+  
+  // Build pod structure: 4 pods of 2 games each
+  const pods = [
+    [regGames[0], regGames[1]], // pod A: 1v16, 8v9
+    [regGames[2], regGames[3]], // pod B: 5v12, 4v13
+    [regGames[4], regGames[5]], // pod C: 6v11, 3v14
+    [regGames[6], regGames[7]], // pod D: 7v10, 2v15
+  ];
+
+  // Compute R64 win probs for each game
+  function r64WinProbs(game){
+    const [teamAs, teamBs] = gameTeams(game);
+    // If multiple teams (FF slot), use average composite or just pick first
+    const teamA = teamAs[0];
+    const teamB = typeof game[1]==='string' ? game[1] : teamBs[0];
+    const pA = winProb(teamA, teamB);
+    return [{name:teamA, prob:pA}, {name:teamB, prob:1-pA}];
+  }
+
+  // For each pod, compute R32 entry probabilities  
+  function podR32Probs(pod){
+    const g1 = r64WinProbs(pod[0]);
+    const g2 = r64WinProbs(pod[1]);
+    // R32: winner of g1 vs winner of g2
+    const r32 = [];
+    g1.forEach(t1=>{
+      g2.forEach(t2=>{
+        const pWin12 = winProb(t1.name, t2.name);
+        r32.push({name:t1.name, prob:t1.prob*t2.prob*pWin12 + t1.prob*(1-t2.prob)*winProb(t1.name, t2.name)});
+      });
+    });
+    // Simplify: P(team wins pod) = P(wins R64) * P(beats R32 opponent)
+    const podA = g1.map(t=>({
+      name:t.name,
+      prob: g2.reduce((s,t2)=> s + t.prob * t2.prob * winProb(t.name,t2.name), 0)
+    }));
+    const podB = g2.map(t=>({
+      name:t.name,
+      prob: g1.reduce((s,t1)=> s + t.prob * t1.prob * winProb(t.name,t1.name), 0)
+    }));
+    return [...podA, ...podB];
+  }
+
+  // For region: 4 pods -> 2 S16 games -> 1 E8 (regional final)
+  const s16A = podR32Probs(pods[0]).concat(podR32Probs(pods[1])); // pods A+B -> S16 game 1
+  const s16B = podR32Probs(pods[2]).concat(podR32Probs(pods[3])); // pods C+D -> S16 game 2
+
+  // E8: winner of S16A vs winner of S16B  
+  const e8Probs = {};
+  s16A.forEach(tA=>{
+    s16B.forEach(tB=>{
+      const pWinAB = winProb(tA.name, tB.name);
+      // P(tA wins region) += P(tA wins S16A) * P(tB wins S16B) * P(tA beats tB)
+      e8Probs[tA.name] = (e8Probs[tA.name]||0) + tA.prob * tB.prob * pWinAB;
+      e8Probs[tB.name] = (e8Probs[tB.name]||0) + tA.prob * tB.prob * (1-pWinAB);
+    });
+  });
+
+  // Return sorted by P(wins region)
+  return Object.entries(e8Probs)
+    .map(([name,prob])=>({name, prob}))
+    .sort((a,b)=>b.prob-a.prob);
+}
+
+function buildRegionalPanel(){
+  const panel = document.getElementById('regional-panel');
+  if(!panel) return;
+  const regions = [
+    {code:'E', name:'East'},
+    {code:'W', name:'West'},
+    {code:'S', name:'South'},
+    {code:'M', name:'Midwest'}
+  ];
+  const regColors = {E:'#3a78f0', W:'#22c55e', S:'#f59e0b', M:'#a855f7'};
+  
+  panel.innerHTML = regions.map(reg=>{
+    const results = simRegion(reg.code);
+    const top3 = results.slice(0,3);
+    const total = results.reduce((s,t)=>s+t.prob,0);
+    
+    const rows = top3.map((t,i)=>{
+      const pct = Math.round(t.prob*100);
+      const bar = Math.round((t.prob / (top3[0].prob||1)) * 100);
+      const medal = i===0?'🥇':i===1?'🥈':'🥉';
+      return `<div class="rp-row">
+        <span class="rp-rank">${medal}</span>
+        <span class="rp-name">${t.name}</span>
+        <div class="rp-bar-wrap"><div class="rp-bar" style="width:${bar}%;background:${regColors[reg.code]}"></div></div>
+        <span class="rp-pct">${pct}%</span>
+      </div>`;
+    }).join('');
+
+    return `<div class="rp-card">
+      <div class="rp-hd" style="border-color:${regColors[reg.code]}">
+        <span class="rp-reg" style="color:${regColors[reg.code]}">${reg.name} Region</span>
+        <span class="rp-sub">Final Four Probability</span>
+      </div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+
+function updateRegionalPanel(){
+  buildRegionalPanel();
+}
+
+
+const ESPN_OWN = {
+  'Duke':23.4,
+  'Arizona':20.9,
+  'Michigan':14.2,
+  'Florida':7.6,
+  'Houston':6.3,
+  'Connecticut':3.8,
+  'Purdue':3.0,
+  'Iowa St':2.9,
+  'Arkansas':2.0,
+  'Michigan St':1.8,
+  'Gonzaga':1.7,
+  'Illinois':1.4,
+  'St. John\'s':1.1,
+  'Kansas':1.0,
+  'Virginia':1.0,
+  'Wisconsin':0.6,
+  'Alabama':0.6,
+  'North Carolina':0.5,
+  'BYU':0.5,
+  'Vanderbilt':0.4,
+  'Nebraska':0.4,
+  'Tennessee':0.4,
+  'Kentucky':0.4,
+  'Ohio St':0.3,
+  'LIU':0.3,
+  'Texas Tech':0.3,
+  'Louisville':0.2,
+  'UCLA':0.2,
+  'Villanova':0.2,
+  'Miami FL':0.2,
+  'Georgia':0.2,
+  'Siena':0.1,
+  'TCU':0.1,
+  'South Florida':0.1,
+  'Prairie View A&M':0.1,
+  'Clemson':0.1,
+  'Iowa':0.1,
+  'McNeese St':0.1,
+  'Penn':0.1,
+  'Saint Mary\'s':0.1,
+  'Texas A&M':0.1,
+  'Utah St':0.1,
+  'Hawaii':0.1,
+  'Texas':0.1,
+  'Missouri':0.1,
+  'Howard':0.1,
+  'Saint Louis':0.1,
+  'Akron':0.1,
+  'Miami OH':0.1,
+  'Northern Iowa':0,
+  'Cal Baptist':0,
+  'North Dakota St':0,
+  'UCF':0,
+  'Furman':0,
+  'Troy':0,
+  'VCU':0,
+  'Idaho':0,
+  'High Point':0,
+  'Kennesaw St':0,
+  'Queens':0,
+  'Hofstra':0,
+  'Wright St':0,
+  'Santa Clara':0,
+  'Tennessee St':0,
+};
+
+// ── REGIONAL FINAL FOUR PROBABILITIES ────────────────────────────────────────
+function computeRegionalProbs(){
+  const w=W();
+  const REGIONS={E:'East',W:'West',S:'South',M:'Midwest'};
+  const REG_COLORS={E:'#3a78f0',W:'#22c55e',S:'#f59e0b',M:'#a855f7'};
+
+  // Get all teams per region from R64 + FF winners
+  const regionTeams={E:[],W:[],S:[],M:[]};
+  R64.forEach(g=>{
+    const reg=g[2];
+    // Team A
+    if(Array.isArray(g[0])) g[0].forEach(t=>{ if(TD[t]) regionTeams[reg].push(t); });
+    else if(TD[g[0]]) regionTeams[reg].push(g[0]);
+    // Team B (may be array for FF slot)
+    if(Array.isArray(g[1])) g[1].forEach(t=>{ if(TD[t]) regionTeams[reg].push(t); });
+    else if(TD[g[1]]) regionTeams[reg].push(g[1]);
+  });
+  // Add FF teams
+  FF.forEach(([a,b,id,lbl])=>{
+    if(TD[a]) { const reg=TD[a].reg; if(regionTeams[reg]) regionTeams[reg].push(a); }
+    if(TD[b]) { const reg=TD[b].reg; if(regionTeams[reg]) regionTeams[reg].push(b); }
+  });
+  // Deduplicate
+  Object.keys(regionTeams).forEach(r=>{
+    regionTeams[r]=[...new Set(regionTeams[r])];
+  });
+
+  // For each team compute composite score
+  function teamScore(name){
+    const d=TD[name]||{};
+    const vals={adjd:d.adjd,adjo:d.adjo,efg:d.efg,to:d.to,tord:d.tord,wab:d.wab,
+                tempo:d.tempo,tpr:d.tpr,luck:d.luck,net:d.net,bpi:d.bpi,
+                q12:d.q12pct,q1w:d.q1w,q1pct:d.q1pct,q12w:d.q12w};
+    return scoreTeam(vals,w).total;
+  }
+
+  // For each region, compute relative win probability using softmax on scores
+  // P(team wins region) ∝ e^(k * score) where k controls spread
+  const results={};
+  Object.keys(regionTeams).forEach(reg=>{
+    const teams=regionTeams[reg];
+    const scores=teams.map(t=>({name:t,score:teamScore(t)}));
+    // Softmax with k=0.12 to spread probabilities
+    const k=0.12;
+    const maxS=Math.max(...scores.map(s=>s.score));
+    const exps=scores.map(s=>({...s,exp:Math.exp(k*(s.score-maxS))}));
+    const total=exps.reduce((sum,s)=>sum+s.exp,0);
+    const probs=exps.map(s=>({name:s.name,score:s.score,prob:Math.round((s.exp/total)*100)}));
+    probs.sort((a,b)=>b.prob-a.prob);
+    results[reg]={name:REGIONS[reg],color:REG_COLORS[reg],teams:probs};
+  });
+  return results;
+}
+
+function buildRegionalPanel(){
+  const grid=document.getElementById('reg-grid');
+  if(!grid)return;
+  const results=computeRegionalProbs();
+  const regOrder=['E','W','S','M'];
+  grid.innerHTML=regOrder.map(reg=>{
+    const r=results[reg];
+    const top3=r.teams.slice(0,3);
+    const maxProb=top3[0]?.prob||1;
+    const rows=top3.map((t,i)=>{
+      const d=TD[t.name]||{};
+      const seed=d.seed||'?';
+      const barPct=Math.round((t.prob/maxProb)*100);
+      const rankColor=i===0?r.color:i===1?'rgba(255,255,255,.6)':'rgba(255,255,255,.35)';
+      const own=ESPN_OWN[t.name]||0;
+      const cv=own>0.1?(t.prob/own):null;
+      // Pool-size-adjusted CV thresholds
+      const poolTier=getPoolTier();
+      const cvThresh={
+        tiny:   {hv:2.0, v:1.3, n:0.8},
+        small:  {hv:2.5, v:1.5, n:0.8},
+        medium: {hv:3.0, v:2.0, n:0.8},
+        large:  {hv:3.5, v:2.5, n:0.8},
+        huge:   {hv:4.0, v:3.0, n:0.8},
+        massive:{hv:5.0, v:3.5, n:0.8},
+      };
+      const th=cvThresh[poolTier]||cvThresh.medium;
+      let cvLabel='', cvColor='';
+      if(cv===null){cvLabel='—';cvColor='rgba(255,255,255,.25)';}
+      else if(cv>=th.hv){cvLabel='HIGH VALUE';cvColor='#00e050';}
+      else if(cv>=th.v){cvLabel='VALUE';cvColor='#facc15';}
+      else if(cv>=th.n){cvLabel='NEUTRAL';cvColor='rgba(255,255,255,.4)';}
+      else{cvLabel='CHALK';cvColor='rgba(255,255,255,.25)';}
+      const ownStr=own>=0.1?own.toFixed(1)+'%':'<0.1%';
+      return `<div class="reg-row">
+        <span class="reg-rank">${i+1}</span>
+        <span class="reg-seed">${seed}</span>
+        <span class="reg-name">${t.name}</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:.72rem;color:rgba(255,255,255,.4);flex-shrink:0;text-align:right;line-height:1.2">
+          <span style="display:block">${ownStr} owned</span>
+          <span style="color:${cvColor};font-weight:700">${cvLabel}</span>
+        </span>
+        <span class="reg-pct" style="color:${rankColor};margin-left:8px">${t.prob}%</span>
+      </div>
+      <div class="reg-bar-wrap"><div class="reg-bar-fill" style="width:${barPct}%;background:${rankColor}"></div></div>`;
+    }).join('');
+    return `<div class="reg-card">
+      <div class="reg-hd" style="color:${r.color}">${r.name} Region — Final Four</div>
+      ${rows}
+    </div>`;
+  }).join('');
+}
+
 function buildAll(){
   // FIRST FOUR
   const ffSec=document.getElementById('sec-ff');
@@ -1134,6 +1529,8 @@ buildAll();
 updateWtTotal();
 updatePoolBadge();
 applyPreset('r64');
+buildRegionalPanel();
+buildRegionalPanel();
 document.getElementById('cutoff-line').innerHTML=getCutoffLine();
 
 
